@@ -5,8 +5,7 @@ import React, { use } from "react";
 import { getFolders, getNotes } from "@/apis/api";
 import { useQuery } from "@tanstack/react-query";
 import { Box } from "@mui/material";
-import NoteEditor from "@/components/NoteEditor/NoteEditor";
-
+import NoNote from "@/components/NoteEditor/NoNote";
 
 function NotesByFolder({ params }: { params: Promise<{ folderId: string }> }) {
   const {folderId} = use(params) ;
@@ -26,7 +25,6 @@ function NotesByFolder({ params }: { params: Promise<{ folderId: string }> }) {
   } = useQuery({
     queryKey: ["notes", folderId],
     queryFn: () => {
-      console.log("Fetching notes for folderId:", folderIdNumber);
       return getNotes({ folderId: folderIdNumber });
     },
     enabled: !!folderIdNumber, 
@@ -50,10 +48,13 @@ function NotesByFolder({ params }: { params: Promise<{ folderId: string }> }) {
     }
   }
   const title: string = getTitle();
+
+  const initialParams = { folderId: folderId ?? undefined, page: 1, limit: 10 };
+
   
   return <>
-  <NotesList notes={notesByFolder} title = {title} />
-  <NoteEditor />
+  <NotesList notes={notesByFolder} title = {title} initialParams={initialParams} />
+  <NoNote/>
   
   </> ;
 }

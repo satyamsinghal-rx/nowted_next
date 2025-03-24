@@ -2,8 +2,12 @@ import { List, ListItem, ListItemAvatar, ListItemButton, ListItemText, Typograph
 import React from 'react'
 import Image from 'next/image'
 import FolderIconSVG from "@/../public/icons/folderIcon.svg"
+import { useRouter } from "next/navigation";
+
 
 function MoreSection() {
+  const router = useRouter();
+
   return (
     <>
     <Typography variant="subtitle2" sx={{ padding: "0px 16px", color: "white", marginTop: "20px" }}>
@@ -11,7 +15,8 @@ function MoreSection() {
     </Typography>
     <List dense={true}>
       
-        <ListItemButton  sx={{ padding: "4px 8px" }}>
+        <ListItemButton  sx={{ padding: "4px 8px" }}
+        onClick={() => router.push(`/${"favorites"}`)}>
           <ListItem sx={{ padding: "2px 8px" }}>
             <ListItemAvatar sx={{ minWidth: 32 }}> 
               <Image src={FolderIconSVG} alt="Folder Icon" />
@@ -20,7 +25,8 @@ function MoreSection() {
           </ListItem>
         </ListItemButton>
 
-        <ListItemButton  sx={{ padding: "2px 8px" }}>
+        <ListItemButton  sx={{ padding: "2px 8px" }}
+        onClick={() => router.push(`/${"trash"}`)}>
           <ListItem sx={{ padding: "2px 8px" }}>
             <ListItemAvatar sx={{ minWidth: 32 }}> 
               <Image src={FolderIconSVG} alt="Folder Icon" />
@@ -29,7 +35,8 @@ function MoreSection() {
           </ListItem>
         </ListItemButton>
       
-        <ListItemButton  sx={{ padding: "2px 8px" }}>
+        <ListItemButton  sx={{ padding: "2px 8px" }}
+        onClick={() => router.push(`/${"archived"}`)}>
           <ListItem sx={{ padding: "2px 8px" }}>
             <ListItemAvatar sx={{ minWidth: 32 }}> 
               <Image src={FolderIconSVG} alt="Folder Icon" />
