@@ -3,39 +3,49 @@ import { Box, TextField } from "@mui/material";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useCallback, useState } from "react";
 
-function NoteContent({ noteId, initialContent }: { noteId: string; initialContent: string }) {
+function NoteContent({
+  noteId,
+  initialContent,
+}: {
+  noteId: string;
+  initialContent: string;
+}) {
   const [content, setContent] = useState(initialContent);
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (newContent: string) => updateNote(noteId, { content: newContent }),
+    mutationFn: (newContent: string) =>
+      updateNote(noteId, { content: newContent }),
     onSuccess: () => {
       // Invalidate all notes queries
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
       // Optionally, you could optimistically update the cache here
       // queryClient.setQueryData(['notes'], (oldData: Note[] | undefined) => {
       //   if (!oldData) return;
-      //   return oldData.map(note => 
+      //   return oldData.map(note =>
       //     note.id === noteId ? { ...note, content: newContent } : note
       //   );
       // });
     },
   });
 
-  const handleUpdate = useCallback((newContent: string) => {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-
-    const newTimeout = setTimeout(() => {
-      if (newContent !== initialContent) {
-        mutation.mutate(newContent);
+  const handleUpdate = useCallback(
+    (newContent: string) => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
       }
-    }, 500);
 
-    setTimeoutId(newTimeout);
-  }, [mutation, initialContent, timeoutId]);
+      const newTimeout = setTimeout(() => {
+        if (newContent !== initialContent) {
+          mutation.mutate(newContent);
+        }
+      }, 500);
+
+      setTimeoutId(newTimeout);
+    },
+    [mutation, initialContent, timeoutId]
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -46,11 +56,15 @@ function NoteContent({ noteId, initialContent }: { noteId: string; initialConten
   return (
     <Box
       sx={{
-        maxHeight: "800px",
+        height: "calc(100vh - 230px)",
         overflowY: "auto",
-        p: 2,
+        py: 2,
         borderRadius: 2,
         color: "white",
+        scrollbarWidth: "none",
+        "&::-webkit-scrollbar": {
+          display: "none",
+        },
       }}
     >
       <TextField
@@ -60,6 +74,7 @@ function NoteContent({ noteId, initialContent }: { noteId: string; initialConten
         value={content}
         onChange={handleChange}
         InputProps={{
+          disableUnderline: true, 
           sx: {
             color: "white",
             fontSize: "16px",
@@ -67,7 +82,7 @@ function NoteContent({ noteId, initialContent }: { noteId: string; initialConten
           },
         }}
         sx={{
-          textarea: {
+          "& .MuiInputBase-root": {
             minHeight: "100px",
             resize: "none",
           },

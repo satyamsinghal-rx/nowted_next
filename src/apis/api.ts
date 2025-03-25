@@ -68,3 +68,87 @@ export const updateNote = async (
     return {} as Note;
   }
 };
+
+export const favoriteNote = async (
+  noteId: string,
+  isFavorite: boolean
+): Promise<Note> => {
+  try {
+    const response = await axios.patch<{ note: Note }>(
+      `${API_URL}/notes/${noteId}`,
+      { isFavorite }
+    );
+    return response.data.note;
+  } catch (error) {
+    console.log(error);
+    return {} as Note;
+  }
+};
+
+export const archiveNote = async (
+  noteId: string,
+  isArchived: boolean
+): Promise<Note> => {
+  try {
+    const response = await axios.patch<{ note: Note }>(
+      `${API_URL}/notes/${noteId}`,
+      { isArchived }
+    );
+    return response.data.note;
+  } catch (error) {
+    console.log(error);
+    return {} as Note;
+  }
+};
+
+export const deleteNote = async (noteId: string): Promise<void> => {
+  try {
+    await axios.delete(`${API_URL}/notes/${noteId}`);
+  } catch (error) {
+    console.log(error);
+    throw error; // Re-throw the error to handle it in the component
+  }
+};
+
+export const createNote = async (
+  note: Partial<Note>
+): Promise<Note | undefined> => {
+  try {
+    const response = await axios.post<{ note: Note }>(`${API_URL}/notes`, note);
+    return response.data.note;
+  } catch (error) {
+    console.error("Error creating note:", error);
+    return undefined;
+  }
+};
+
+export const createFolder = async (
+  folder: Partial<Folder>
+): Promise<Folder | null> => {
+  try {
+    const response = await axios.post<{ folder: Folder }>(
+      `${API_URL}/folders`,
+      folder
+    );
+    return response.data.folder;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+export const restoreNoteById = async (id: string) => {
+  try {
+    await axios.post(`${API_URL}/notes/${id}/restore`);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const deleteFolder = async (id: string): Promise<void> => {
+  try {
+    await axios.delete(`${API_URL}/folders/${id}`);
+  } catch (error) {
+    console.log(error);
+  }
+};

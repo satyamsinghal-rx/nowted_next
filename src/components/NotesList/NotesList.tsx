@@ -28,14 +28,14 @@ function NotesList({
   const pathname = usePathname();
   const [notes, setNotes] = useState<Note[]>(initialNotes || []);
   const [page, setPage] = useState<number>(initialParams.page || 1);
-  const [hasMore, setHasMore] = useState<boolean>(  
+  const [hasMore, setHasMore] = useState<boolean>(
     Array.isArray(initialNotes) &&
       initialNotes.length === (initialParams.limit || 10)
   );
 
   useEffect(() => {
     setNotes(initialNotes || []);
-    setPage(1); // Reset to first page on update
+    setPage(1);
     setHasMore(
       Array.isArray(initialNotes) &&
         initialNotes.length === (initialParams.limit || 10)
@@ -61,42 +61,43 @@ function NotesList({
   const handleNoteClick = (note: Note) => {
     if (pathname.includes("favorites")) {
       router.push(`/favorites/notes/${note.id}`);
+    } else if (pathname.includes("archived")) {
+      router.push(`/archived/notes/${note.id}`);
+    } else if (pathname.includes("trash")) {
+      router.push(`/trash/notes/${note.id}`);
     } else {
       router.push(`/folders/${note.folderId}/notes/${note.id}`);
     }
   };
-  
+
+  const truncatePreview = (text: string, maxLength: number = 25): string => {
+    if (!text || text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + "...";
+  };
 
   return (
     <Box
       sx={{
-        width: "320px",
+        width: "380px",
         backgroundColor: "#1C1C1C",
         color: "white",
-        padding: "16px",
+        padding: "24px",
         height: "100vh",
         display: "flex",
         flexDirection: "column",
       }}
     >
-      <Typography sx={{ mb: 2 }}>{title}</Typography>
+      <Typography sx={{ fontSize: "24px", fontWeight: "bold", mb: 2 }}>
+        {title}
+      </Typography>
 
       <Box
         sx={{
           flex: 1,
           overflowY: "auto",
+          scrollbarWidth: "none",
           "&::-webkit-scrollbar": {
-            width: "8px",
-          },
-          "&::-webkit-scrollbar-track": {
-            background: "#2A2A2A",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            background: "#555",
-            borderRadius: "4px",
-          },
-          "&::-webkit-scrollbar-thumb:hover": {
-            background: "#777",
+            display: "none",
           },
         }}
       >
@@ -107,15 +108,14 @@ function NotesList({
             );
             return (
               <Card
-                onClick={() =>
-                  handleNoteClick(note)
-                }
+                onClick={() => handleNoteClick(note)}
                 key={note.id}
                 sx={{
-                  backgroundColor: "#1E1E1E",
+                  height: "100px",
+                  backgroundColor: "#FFFFFF08",
                   color: "white",
-                  borderRadius: "12px",
-                  mb: 2,
+                  borderRadius: "2px",
+                  mb: 3,
                   "&:hover": {
                     backgroundColor: "#2A2A2A",
                   },
@@ -123,11 +123,25 @@ function NotesList({
               >
                 <CardActionArea>
                   <CardContent>
-                    <Typography variant="h6" fontWeight="bold">
+                    <Typography
+                      variant="h6"
+                      fontWeight="bold"
+                      paddingBottom={1}
+                    >
                       {note.title}
                     </Typography>
-                    <Typography variant="body2" color="gray">
-                      {formattedDate}   {note.preview}
+                    <Typography
+                      variant="body2"
+                      color="gray"
+                      display="flex"
+                      justifyContent="space-between"
+                      component="div"
+                    >
+                      <Typography component="span">{formattedDate}</Typography>{" "}
+                       
+                      <Typography component="span">
+                        {truncatePreview(note.preview)}
+                      </Typography>
                     </Typography>
                   </CardContent>
                 </CardActionArea>

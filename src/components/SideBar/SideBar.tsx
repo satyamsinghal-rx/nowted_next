@@ -20,22 +20,19 @@ function SideBar() {
         overflowY: "auto",
         scrollbarWidth: "none",
         "&::-webkit-scrollbar": { display: "none" },
+        
       }}
     >
       <Header />
       <Typography
         variant="subtitle2"
-        sx={{ padding: "0px 16px", color: "white", marginTop: "20px" }}
+        sx={{ padding: "0px 16px", color: "white", marginTop: "20px", fontSize: "15px",
+          fontWeight: "medium",}}
       >
         Recents
       </Typography>
       <RecentsList />
-      <Typography
-        variant="subtitle2"
-        sx={{ padding: "0px 16px", marginTop: "20px", color: "white" }}
-      >
-        Folders
-      </Typography>
+      
       <FoldersList />
       <MoreSection />
     </Box>

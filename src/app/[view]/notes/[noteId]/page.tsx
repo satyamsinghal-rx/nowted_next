@@ -1,14 +1,17 @@
+"use client";
+
 import NotesPage from '@/app/folders/[folderId]/notes/[noteId]/page'
-import React from 'react'
+import React, { use } from 'react'
 
 function ViewNotes({
     params,
-  }: {
+}: {
     params: Promise<{ view: string; noteId: string }>;
-  }) {
-    
-  return (
-    <NotesPage params={params} />)
+}) {
+    const { view, noteId } = use(params); 
+    return (
+        <NotesPage params={{ noteId, view }} />
+    )
 }
 
 export default ViewNotes

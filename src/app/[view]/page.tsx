@@ -4,6 +4,7 @@ import React, { use } from "react";
 import { getNotes } from "@/apis/api";
 import NotesList from "@/components/NotesList/NotesList";
 import { useQuery } from "@tanstack/react-query";
+import NoNote from "@/components/NoteEditor/NoNote";
 
 function View({ params }: { params: Promise<{ view: string }> }) {
   const { view } = use(params);
@@ -28,13 +29,15 @@ else if(view === "archived") title = "Archived"
 else if(view === "trash") title = "Trash"
 
   return (
-    <div>
+    <>
       <NotesList
         notes={notes || []}
         title={title}
         initialParams={initialParams}
       />
-    </div>
+      <NoNote/>
+    </>
+    
   );
 }
 
