@@ -4,15 +4,15 @@ import { getFolders, getNoteById, getNotes } from "@/apis/api";
 import NoteEditor from "@/components/NoteEditor/NoteEditor";
 import NotesList from "@/components/NotesList/NotesList";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
-type PageProps<T = unknown> = {
-  params: T;
-  searchParams?: Record<string, string | string[] | undefined>;
-};
+import React, { use } from "react";
 
-function NotesPage({ params }: PageProps<{ folderId?: string; noteId: string; view?: string }>) 
-  {
-  const { folderId, noteId, view } = (params); 
+
+function NotesPage({
+  params,
+}: {
+  params: Promise<{ folderId?: string; noteId: string; view?: string }>; 
+}) {
+  const { folderId, noteId, view } = use(params); 
   console.log("Params in NotesPage:", { folderId, noteId, view });
 
   const { data: note} = useQuery({

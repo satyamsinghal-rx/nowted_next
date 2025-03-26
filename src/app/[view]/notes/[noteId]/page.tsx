@@ -1,16 +1,16 @@
 "use client";
 
 import NotesPage from '@/app/folders/[folderId]/notes/[noteId]/page'
-import React, { use } from 'react'
+import React from 'react'
+import { useParams } from 'next/navigation';
 
-function ViewNotes({
-    params,
-}: {
-    params: Promise<{ view: string; noteId: string }>;
-}) {
-    const { view, noteId } = use(params); 
+function ViewNotes() {
+    const { view, noteId } = useParams();
+    if (!noteId || !view) {
+        throw new Error("Missing required parameters: noteId or view");
+    }
     return (
-        <NotesPage params={{ noteId, view }} />
+        <NotesPage params={Promise.resolve({ noteId: String(noteId), view: String(view) })} />
     )
 }
 
