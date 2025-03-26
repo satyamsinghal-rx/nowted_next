@@ -26,8 +26,8 @@ interface NoteHeaderProps {
   noteId: string;
   initialTitle: string;
   date: string;
-  folder: string; // folder name
-  folderId: string; // folder ID
+  folder: string;
+  folderId: string;
   isFavorite: boolean;
   isArchived: boolean;
   availableFolders?: Folder[];
@@ -59,8 +59,8 @@ function NoteHeader({
   );
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [isArchived, setIsArchived] = useState(initialIsArchived);
-  const [folder, setFolder] = useState(initialFolder); // folder name
-  const [currentFolderId, setCurrentFolderId] = useState(initialFolderId); // folder ID
+  const [folder, setFolder] = useState(initialFolder);
+  const [currentFolderId, setCurrentFolderId] = useState(initialFolderId);
   const queryClient = useQueryClient();
   const router = useRouter();
   const pathname = usePathname();
@@ -70,16 +70,23 @@ function NoteHeader({
     setIsArchived(initialIsArchived);
     setFolder(initialFolder);
     setCurrentFolderId(initialFolderId);
-  }, [initialIsFavorite, initialIsArchived, initialFolder, initialFolderId]);
+    setTitle(initialTitle);
+  }, [
+    initialIsFavorite,
+    initialIsArchived,
+    initialFolder,
+    initialFolderId,
+    initialTitle,
+  ]);
 
   const updateMutation = useMutation({
     mutationFn: (note: Partial<Note>) => updateNote(noteId, note),
     onSuccess: (updatedNote) => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
-      if (updatedNote.title) setTitle(updatedNote.title);
+      queryClient.invalidateQueries({ queryKey: ["note", noteId] });
+
       if (updatedNote.folderId) {
         setCurrentFolderId(updatedNote.folderId);
-        // Update folder name based on availableFolders
         const newFolder = availableFolders?.find(
           (f) => f.id === updatedNote.folderId
         );
@@ -144,11 +151,26 @@ function NoteHeader({
 
   const deleteMutation = useMutation({
     mutationFn: () => deleteNote(noteId),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ["notes"] });
+      const previousNotes = queryClient.getQueryData(["notes"]);
+      queryClient.setQueryData(["notes"], (old: Note[] | undefined) => {
+        if (!old) return old;
+        return old.filter((note) => note.id !== noteId);
+      });
+      return { previousNotes };
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
+      if(pathname === `/folders/${currentFolderId}/notes/${noteId}`) {
+        router.push(`/folders/${currentFolderId}/notes/${noteId}/restore`);
+      } else if(pathname === `/favorites/notes/${noteId}`) {
+        router.push(`/favorites/notes/${noteId}/restore`);
+      }
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
       console.error("Error deleting note:", error);
+      queryClient.setQueryData(["notes"], context?.previousNotes);
     },
   });
 
@@ -162,13 +184,12 @@ function NoteHeader({
         if (newTitle !== initialTitle) {
           updateMutation.mutate({ title: newTitle });
         }
-      }, 500);
+      }, 1000);
 
       setTimeoutId(newTimeout);
     },
     [updateMutation, initialTitle, timeoutId]
   );
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setTitle(newValue);
@@ -182,7 +203,9 @@ function NoteHeader({
       setCurrentFolderId(newFolderId);
       updateMutation.mutate({ folderId: newFolderId });
     }
+
     handleFolderMenuClose();
+    router.push(`/folders/${newFolderId}/notes/${noteId}`);
   };
 
   const handleFavorite = () => {
@@ -198,6 +221,8 @@ function NoteHeader({
     handleMenuClose();
     if (pathname.includes("archived")) {
       router.push(`/archived`);
+    } else if (pathname.includes("favorites")) {
+      router.push(`/favorites`);
     }
   };
 
@@ -215,7 +240,6 @@ function NoteHeader({
 
   const handleFolderMenuClose = () => {
     setFolderAnchorEl(null);
-    router.push(`/folders/${currentFolderId}`);
   };
 
   const handleDelete = () => {
@@ -260,11 +284,11 @@ function NoteHeader({
         onClose={handleMenuClose}
         PaperProps={{
           sx: {
-            backgroundColor: "#333", // Dark background
+            backgroundColor: "#333",
             color: "white",
-            width: "200px",
-            borderRadius: "8px", // Rounded corners
-            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)", // Soft shadow
+            width: "300px",
+            borderRadius: "8px",
+            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.3)",
           },
         }}
       >
@@ -274,7 +298,12 @@ function NoteHeader({
           sx={{ gap: 1, padding: "10px 16px" }}
         >
           <ListItemIcon sx={{ color: "white" }}>
-            <Image src={favoriteIcon} alt="Favorite Icon" width={24} height={24} />
+            <Image
+              src={favoriteIcon}
+              alt="Favorite Icon"
+              width={24}
+              height={24}
+            />
           </ListItemIcon>
           {isFavorite ? "Remove from favorites" : "Add to favorites"}
         </MenuItem>
@@ -282,7 +311,12 @@ function NoteHeader({
         {/* Archived */}
         <MenuItem onClick={handleArchive} sx={{ gap: 1, padding: "10px 16px" }}>
           <ListItemIcon sx={{ color: "white" }}>
-            <Image src={archiveIcon} alt="Archive Icon" width={24} height={24} />
+            <Image
+              src={archiveIcon}
+              alt="Archive Icon"
+              width={24}
+              height={24}
+            />
           </ListItemIcon>
           {isArchived ? "Remove from archives" : "Archived"}
         </MenuItem>
@@ -301,7 +335,7 @@ function NoteHeader({
           Delete
         </MenuItem>
       </Menu>
-      
+
       <Stack direction="row" alignItems="center" spacing={1} mt={2} mb={2}>
         <Image src={calendarIcon} alt="Calendar Icon" width={22} height={22} />
         <Typography
@@ -325,7 +359,6 @@ function NoteHeader({
         alignItems="center"
         spacing={1}
         mt={2}
-        onClick={handleFolderMenuOpen}
         sx={{ cursor: "pointer", "&:hover": { opacity: 0.8 } }}
       >
         <Image src={folderIcon} alt="Folder Icon" width={22} height={22} />
@@ -340,7 +373,11 @@ function NoteHeader({
         >
           Folder
         </Typography>
-        <Typography variant="body2" sx={{ color: "white", fontSize: "15px" }}>
+        <Typography
+          variant="body2"
+          sx={{ color: "white", fontSize: "15px" }}
+          onClick={handleFolderMenuOpen}
+        >
           {folder} {/* Display folder name */}
         </Typography>
       </Stack>
@@ -352,6 +389,8 @@ function NoteHeader({
           sx: {
             backgroundColor: "#333",
             color: "white",
+            width: "200px",
+            marginTop: "16px",
           },
         }}
       >

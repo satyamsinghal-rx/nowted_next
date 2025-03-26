@@ -69,6 +69,22 @@ export const updateNote = async (
   }
 };
 
+export const updateFolder = async (
+  id: string,
+  name: string,
+): Promise<Folder | null> => {
+  try {
+    const response = await axios.patch<{ folder: Folder }>(
+      `${API_URL}/folders/${id}`,
+      { name }
+    );
+    return response.data.folder;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
 export const favoriteNote = async (
   noteId: string,
   isFavorite: boolean

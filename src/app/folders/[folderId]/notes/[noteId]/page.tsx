@@ -27,7 +27,7 @@ function NotesPage({
 
   const { data: notesByFolder = [] } = useQuery({
     queryKey: ["notes", folderId],
-    queryFn: () => getNotes({ folderId }),
+    queryFn: () => getNotes({ folderId}),
     enabled: !!folderId && view !== "favorites" && view !== "archived" && view !== "trash",
   });
 

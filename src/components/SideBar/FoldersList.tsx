@@ -1,6 +1,6 @@
 "use client";
 
-import { createFolder, getFolders, deleteFolder } from "@/apis/api"; // Added deleteFolder import
+import { createFolder, getFolders, deleteFolder, updateFolder } from "@/apis/api";
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -18,14 +18,17 @@ import Image from "next/image";
 import FolderIconSVG from "@/../public/icons/folderIcon.svg";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import AddIcon from "@mui/icons-material/Add";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 function FoldersList() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const pathname = usePathname();
 
   const [newFolderName, setNewFolderName] = useState("");
   const [isAdding, setIsAdding] = useState(false);
+  const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState("");
 
   const {
     data: folders = [],
@@ -55,6 +58,16 @@ function FoldersList() {
     },
     onError: (error) => {
       console.error("Error deleting folder:", error);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) => updateFolder(id, name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["folders"] });
+    },
+    onError: (error) => {
+      console.error("Error updating folder:", error);
     },
   });
 
@@ -153,8 +166,21 @@ function FoldersList() {
           {folders.map((folder) => (
             <ListItemButton
               key={folder.id}
-              sx={{ padding: "2px 8px" }}
+              selected={pathname === `/folders/${folder.id}`}
               onClick={() => router.push(`/folders/${folder.id}`)}
+              sx={{
+                padding: "2px 8px",
+                borderRadius: "6px",
+                "&.Mui-selected": {
+                  backgroundColor: "#FFFFFF08",
+                  "&:hover": {
+                    backgroundColor: "#FFFFFF08",
+                  },
+                },
+                "&:hover": {
+                  backgroundColor: "#FFFFFF08",
+                },
+              }}
             >
               <ListItem
                 dense
@@ -177,15 +203,50 @@ function FoldersList() {
                 <ListItemAvatar sx={{ minWidth: 36 }}>
                   <Image src={FolderIconSVG} alt="Folder Icon" />
                 </ListItemAvatar>
-                <ListItemText
-                  primary={folder.name}
-                  sx={{
-                    "& .MuiTypography-root": {
-                      fontSize: "16px",
-                      fontWeight: "medium",
-                    },
-                  }}
-                />
+                {editingFolderId === folder.id ? (
+                  <TextField
+                    variant="standard"
+                    fullWidth
+                    value={editingName}
+                    onChange={(e) => setEditingName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        updateMutation.mutate({ id: folder.id, name: editingName });
+                        setEditingFolderId(null);
+                      }
+                    }}
+                    onBlur={() => {
+                      updateMutation.mutate({ id: folder.id, name: editingName });
+                      setEditingFolderId(null);
+                    }}
+                    autoFocus
+                    sx={{
+                      input: { color: "white" },
+                      "& .MuiInput-underline:before": { borderBottomColor: "gray" },
+                    }}
+                  />
+                ) : (
+                  <ListItemText
+                    primary={
+                      <span
+                        onClick={() => router.push(`/folders/${folder.id}`)}
+                        onDoubleClick={() => {
+                          setEditingFolderId(folder.id);
+                          setEditingName(folder.name);
+                        }}
+                        style={{ cursor: "pointer" }}
+                      >
+                        {folder.name}
+                      </span>
+                    }
+                    sx={{
+                      "& .MuiTypography-root": {
+                        fontSize: "16px",
+                        fontWeight: "medium",
+                      },
+                    }}
+                  />
+                )}
               </ListItem>
             </ListItemButton>
           ))}

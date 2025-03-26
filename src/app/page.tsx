@@ -4,12 +4,16 @@ import { getFolders, getNotes } from "@/apis/api";
 import NoNote from "@/components/NoteEditor/NoNote";
 import NotesList from "@/components/NotesList/NotesList";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo } from "react";
 
 export default function Home() {
 
+  const router = useRouter();
+
   const {
     data: folders = [],
+    isSuccess,
   } = useQuery({
     queryKey: ["folders"],
     queryFn: getFolders,
@@ -22,13 +26,16 @@ const {
 } = useQuery({
   queryKey: ["notes", folderId],  
   queryFn: () => {
-    console.log("Fetching notes for folderId:", folderId);
     return getNotes({ folderId: folderId ?? undefined });
   },
   enabled: !!folderId,
 });
 
-console.log("Fetched Notes:", notesByFolder);
+useEffect(() => {
+  if (isSuccess && folders.length > 0) {
+    router.push(`/folders/${folders[0].id}`);
+  }
+}, [isSuccess, folders, router]);
 
 
 const getTitle = () => {

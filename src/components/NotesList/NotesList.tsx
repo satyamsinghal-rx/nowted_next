@@ -47,10 +47,9 @@ function NotesList({
     const nextPage = page + 1;
     const newParams = { ...initialParams, page: nextPage };
     const newNotes = (await getNotes(newParams)) || [];
-    console.log("New notes:", newNotes);
+
     setNotes((prev) => {
       const updatedNotes = [...prev, ...newNotes];
-      console.log("Updated notes state:", updatedNotes);
       setPage(nextPage);
       setHasMore(newNotes.length === (initialParams.limit || 10));
       queryClient.setQueryData(["notes", newParams], newNotes);
@@ -70,7 +69,7 @@ function NotesList({
     }
   };
 
-  const truncatePreview = (text: string, maxLength: number = 25): string => {
+  const truncatePreview = (text: string, maxLength: number = 20): string => {
     if (!text || text.length <= maxLength) return text;
     return text.substring(0, maxLength) + "...";
   };

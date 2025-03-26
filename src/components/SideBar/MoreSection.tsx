@@ -8,11 +8,15 @@ import {
 } from "@mui/material";
 import React from "react";
 import Image from "next/image";
-import FolderIconSVG from "@/../public/icons/folderIcon.svg";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import deleteIcon from "@/../public/icons/dustbin.svg";
+import favoriteIcon from "@/../public/icons/favorite.svg";
+import archiveIcon from "@/../public/icons/archived.svg";
+
 
 function MoreSection() {
   const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <>
@@ -30,12 +34,24 @@ function MoreSection() {
       </Typography>
       <List dense={true}>
         <ListItemButton
-          sx={{ padding: "4px 8px" }}
+          selected={pathname.startsWith(`/favorites`)}
+          sx={{
+            padding: "4px 8px",
+            "&.Mui-selected": {
+              backgroundColor: "#FFFFFF08",
+              "&:hover": {
+                backgroundColor: "#FFFFFF08",
+              },
+            },
+            "&:hover": {
+              backgroundColor: "#FFFFFF08",
+            },
+          }}
           onClick={() => router.push(`/${"favorites"}`)}
         >
           <ListItem sx={{ padding: "2px 8px" }}>
             <ListItemAvatar sx={{ minWidth: 32 }}>
-              <Image src={FolderIconSVG} alt="Folder Icon" />
+              <Image src={favoriteIcon} alt="Folder Icon" />
             </ListItemAvatar>
             <ListItemText
               primary="Favorites"
@@ -50,12 +66,24 @@ function MoreSection() {
         </ListItemButton>
 
         <ListItemButton
-          sx={{ padding: "2px 8px" }}
+          selected={pathname.startsWith(`/trash`)}
+          sx={{
+            padding: "2px 8px",
+            "&.Mui-selected": {
+              backgroundColor: "#FFFFFF08",
+              "&:hover": {
+                backgroundColor: "#FFFFFF08",
+              },
+            },
+            "&:hover": {
+              backgroundColor: "#FFFFFF08",
+            },
+          }}
           onClick={() => router.push(`/${"trash"}`)}
         >
           <ListItem sx={{ padding: "2px 8px" }}>
             <ListItemAvatar sx={{ minWidth: 32 }}>
-              <Image src={FolderIconSVG} alt="Folder Icon" />
+              <Image src={deleteIcon} alt="Folder Icon" />
             </ListItemAvatar>
             <ListItemText
               primary="Trash"
@@ -70,12 +98,24 @@ function MoreSection() {
         </ListItemButton>
 
         <ListItemButton
-          sx={{ padding: "2px 8px" }}
+          selected={pathname.startsWith(`/archived`)}
+          sx={{
+            padding: "2px 8px",
+            "&.Mui-selected": {
+              backgroundColor: "#FFFFFF08",
+              "&:hover": {
+                backgroundColor: "#FFFFFF08",
+              },
+            },
+            "&:hover": {
+              backgroundColor: "#FFFFFF08",
+            },
+          }}
           onClick={() => router.push(`/${"archived"}`)}
         >
           <ListItem sx={{ padding: "2px 8px" }}>
             <ListItemAvatar sx={{ minWidth: 32 }}>
-              <Image src={FolderIconSVG} alt="Folder Icon" />
+              <Image src={archiveIcon} alt="Folder Icon" />
             </ListItemAvatar>
             <ListItemText
               primary="Archived"
