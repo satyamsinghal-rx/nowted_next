@@ -81,17 +81,11 @@ function NoteHeader({
 
   const updateMutation = useMutation({
     mutationFn: (note: Partial<Note>) => updateNote(noteId, note),
-    onSuccess: (updatedNote) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       queryClient.invalidateQueries({ queryKey: ["note", noteId] });
 
-      if (updatedNote.folderId) {
-        setCurrentFolderId(updatedNote.folderId);
-        const newFolder = availableFolders?.find(
-          (f) => f.id === updatedNote.folderId
-        );
-        if (newFolder) setFolder(newFolder.name);
-      }
+      
     },
     onError: (error) => {
       console.error("Error updating note:", error);

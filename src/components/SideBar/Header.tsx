@@ -54,7 +54,6 @@ function Header() {
     if (term.trim() && folderId) {
       const notes = await getNotes({
         archived: false,
-        favorite: false,
         deleted: false,
         search: term,
       });
