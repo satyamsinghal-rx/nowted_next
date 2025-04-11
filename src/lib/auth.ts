@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "default-secret"
+  process.env.ACCESS_TOKEN_SECRET || "default-secret"
 );
 
 const COOKIE_NAME = "auth_token";
