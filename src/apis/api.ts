@@ -1,7 +1,8 @@
 import { Folder, Note, NotesParams } from "@/types/type";
 import axios from "axios";
 
-const API_URL = "https://nowted-server.remotestate.com";
+// const API_URL = "https://nowted-server.remotestate.com";
+const API_URL = "http://localhost:3000/api";
 
 export const getNotes = async (
   params: Partial<NotesParams> = {}
