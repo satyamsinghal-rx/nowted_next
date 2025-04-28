@@ -21,6 +21,7 @@ import folderIcon from "@/../public/icons/folderIcon.svg";
 import deleteIcon from "@/../public/icons/dustbin.svg";
 import favoriteIcon from "@/../public/icons/favorite.svg";
 import archiveIcon from "@/../public/icons/archived.svg";
+import { AxiosError } from "axios";
 
 interface NoteHeaderProps {
   noteId: string;
@@ -79,21 +80,25 @@ function NoteHeader({
     initialTitle,
   ]);
 
+
   const updateMutation = useMutation({
     mutationFn: (note: Partial<Note>) => updateNote(noteId, note),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       queryClient.invalidateQueries({ queryKey: ["note", noteId] });
-
-      
     },
-    onError: (error) => {
+    onError: (error: AxiosError) => {
       console.error("Error updating note:", error);
+      const errorMessage = error.response?.status === 409
+          ? "A note with this name already exists."
+          : "Failed to create note. Please try again.";
+        alert(errorMessage);
       setTitle(initialTitle);
       setFolder(initialFolder);
       setCurrentFolderId(initialFolderId);
     },
-  });
+  }); 
+
 
   const favoriteMutation = useMutation({
     mutationFn: (favorite: boolean) => favoriteNote(noteId, favorite),
@@ -176,13 +181,13 @@ function NoteHeader({
 
       const newTimeout = setTimeout(() => {
         if (newTitle !== initialTitle) {
-          updateMutation.mutate({ title: newTitle });
+          updateMutation.mutate({ title: newTitle, folderId: currentFolderId });
         }
       }, 1000);
 
       setTimeoutId(newTimeout);
     },
-    [updateMutation, initialTitle, timeoutId]
+    [updateMutation, initialTitle, timeoutId, currentFolderId]
   );
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;

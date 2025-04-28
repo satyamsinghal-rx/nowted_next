@@ -4,6 +4,7 @@ import Header from "./Header";
 import FoldersList from "./FoldersList";
 import RecentsList from "./RecentsList";
 import MoreSection from "./MoreSection";
+import ProfileSection from "./ProfileSection";
 
 function SideBar() {
 
@@ -35,6 +36,7 @@ function SideBar() {
       
       <FoldersList />
       <MoreSection />
+      <ProfileSection />
     </Box>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { createFolder, getFolders, deleteFolder, updateFolder } from "@/apis/api";
+import { AxiosError } from "axios";
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -39,15 +40,32 @@ function FoldersList() {
     queryFn: getFolders,
   });
 
-  const createMutation = useMutation({
+  // const createMutation = useMutation({
+  //   mutationFn: createFolder,
+  //   onSuccess: () => {
+  //     queryClient.invalidateQueries({ queryKey: ["folders"] });
+  //     setNewFolderName("");
+  //     setIsAdding(false);
+  //   },
+  //   onError: (error) => {
+  //     console.error("Error creating folder:", error);
+  //     alert("Failed to create folder. Please try again.");
+  //   },
+  // });
+
+    const createMutation = useMutation({
     mutationFn: createFolder,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["folders"] });
       setNewFolderName("");
       setIsAdding(false);
     },
-    onError: (error) => {
+    onError: (error: AxiosError) => {
       console.error("Error creating folder:", error);
+      const errorMessage = error.response?.status === 409
+        ? "A folder with this name already exists."
+        : "Failed to create folder. Please try again.";
+      alert(errorMessage);
     },
   });
 
@@ -66,8 +84,12 @@ function FoldersList() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["folders"] });
     },
-    onError: (error) => {
-      console.error("Error updating folder:", error);
+    onError: (error: AxiosError) => {
+      console.error("Error creating folder:", error);
+      const errorMessage = error.response?.status === 409
+        ? "A folder with this name already exists."
+        : "Failed to create folder. Please try again.";
+      alert(errorMessage);
     },
   });
 

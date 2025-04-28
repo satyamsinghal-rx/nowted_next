@@ -18,11 +18,9 @@ function NoteContent({
     mutationFn: (newContent: string) =>
       updateNote(noteId, { content: newContent }),
     onSuccess: () => {
-      // Invalidate all notes queries
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       queryClient.invalidateQueries({ queryKey: ["note", noteId] });
 
-      // Optionally, you could optimistically update the cache here
       // queryClient.setQueryData(['notes'], (oldData: Note[] | undefined) => {
       //   if (!oldData) return;
       //   return oldData.map(note =>

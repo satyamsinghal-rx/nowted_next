@@ -11,23 +11,24 @@ import {
 import React from "react";
 import Image from "next/image";
 import FolderIconSVG from "@/../public/icons/folderIcon.svg";
-import { useQuery } from "@tanstack/react-query";
-import { usePathname, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query"; 
+import { useRouter } from "next/navigation";
 
 export default function RecentsList() {
   const router = useRouter();
-  const pathname = usePathname();
+  // const pathname = usePathname();
 
   const {
     data: recents = [],
     error,
-    isLoading,
   } = useQuery({
     queryKey: ["recents"],
     queryFn: getRecents,
+    refetchOnMount: true,
+
   });
 
-  if (isLoading) return <p>Loading recents...</p>;
+  // if (isLoading) return <p>Loading recents...</p>;
   if (error) return <p>Error loading recents: {error.message}</p>;
 
   return (
@@ -36,7 +37,7 @@ export default function RecentsList() {
         {recents.map((note) => (
           <ListItemButton
             key={note.id}
-            selected={pathname.startsWith(`/folders/${note.folderId}/notes/${note.id}`)}
+            // selected={pathname.startsWith(`/folders/${note.folderId}/notes/${note.id}`)}
             sx={{
               padding: "2px 8px",
               "&.Mui-selected": {

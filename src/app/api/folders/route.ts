@@ -12,6 +12,19 @@ export async function POST(request: NextRequest) {
     }
 
     const { name } = await request.json();
+
+    const existingFolder = await query(
+      "SELECT * FROM folders WHERE userid = $1 AND name = $2 AND deletedat IS NULL",
+      [decoded.userId, name]
+    );
+
+    if (existingFolder.length > 0) {
+      return NextResponse.json(
+        { error: "Folder already exists" },
+        { status: 409 }
+      );
+    }
+
     const result = await query(
       "INSERT INTO folders (userid, name) VALUES ($1, $2) RETURNING *",
       [decoded.userId, name]
@@ -36,7 +49,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const folders = await query('SELECT * FROM folders WHERE userid = $1', [decoded.userId]);
+    const folders = await query('SELECT * FROM folders WHERE userid = $1 AND deletedAt IS NULL', [decoded.userId]);
     return NextResponse.json({"folders": folders});
   } catch (error) {
     console.error("Error creating folder:", error);

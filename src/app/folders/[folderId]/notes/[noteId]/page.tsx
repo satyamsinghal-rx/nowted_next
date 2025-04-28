@@ -13,8 +13,6 @@ function NotesPage({
   params: Promise<{ folderId?: string; noteId: string; view?: string }>; 
 }) {
   const { folderId, noteId, view } = use(params); 
-  console.log("Params in NotesPage:", { folderId, noteId, view });
-
   const { data: note} = useQuery({
     queryKey: ["note", noteId],
     queryFn: () => getNoteById(noteId),

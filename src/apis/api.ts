@@ -66,7 +66,7 @@ export const updateNote = async (
     return response.data.note;
   } catch (error) {
     console.log(error);
-    return {} as Note;
+    throw error;
   }
 };
 
@@ -82,7 +82,7 @@ export const updateFolder = async (
     return response.data.folder;
   } catch (error) {
     console.log(error);
-    return null;
+    throw error;
   }
 };
 
@@ -123,7 +123,7 @@ export const deleteNote = async (noteId: string): Promise<void> => {
     await axios.delete(`${API_URL}/notes/${noteId}`);
   } catch (error) {
     console.log(error);
-    throw error; // Re-throw the error to handle it in the component
+    throw error;  
   }
 };
 
@@ -135,13 +135,13 @@ export const createNote = async (
     return response.data.note;
   } catch (error) {
     console.error("Error creating note:", error);
-    return undefined;
+    throw error;
   }
 };
 
 export const createFolder = async (
   folder: Partial<Folder>
-): Promise<Folder | null> => {
+): Promise<Folder> => {
   try {
     const response = await axios.post<{ folder: Folder }>(
       `${API_URL}/folders`,
@@ -150,15 +150,28 @@ export const createFolder = async (
     return response.data.folder;
   } catch (error) {
     console.log(error);
-    return null;
+    throw error;
   }
 };
 
-export const restoreNoteById = async (id: string) => {
+// export const restoreNoteById = async (id: string) => {
+//   try {
+//     await axios.post(`${API_URL}/notes/${id}/restore`);
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+export const restoreNoteById = async (id: string): Promise<Note> => {
   try {
-    await axios.post(`${API_URL}/notes/${id}/restore`);
-  } catch (error) {
-    console.log(error);
+    const response = await axios.post<{ note: Note }>(`${API_URL}/notes/${id}/restore`);
+    return response.data.note;
+  } catch (error: unknown) {
+    console.log("Error restoring note:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw { status: error.response.status, data: error.response.data };
+    }
+    throw error;
   }
 };
 

@@ -137,7 +137,7 @@ function NotesList({
                       component="div"
                     >
                       <Typography component="span">{formattedDate}</Typography>{" "}
-                       
+                      
                       <Typography component="span">
                         {truncatePreview(note.preview)}
                       </Typography>
